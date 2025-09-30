@@ -1,62 +1,74 @@
 // js/gallery-loader.js
-(async () => {
-  try {
-    const res = await fetch('/content/gallery.json', { cache: 'no-store' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    const items = Array.isArray(data.items) ? data.items : data;
+(async function () {
+  const grid = document.getElementById('gallery-grid');
+  if (!grid) return;
 
-    const grid = document.getElementById('gallery-grid');
-    if (!grid) return;
+  // Normalize any path the CMS gives us to something the site can serve
+  function resolveSrc(p) {
+    if (!p) return "";
+    let s = String(p).trim();
 
-    const frag = document.createDocumentFragment();
+    // If the CMS stored a repo path, map it to the public URL
+    // e.g. "public/uploads/file.jpg" -> "/uploads/file.jpg"
+    s = s.replace(/^\/?public\/uploads/i, "/uploads");
+    s = s.replace(/^public\//i, "/");        // just in case
 
-    for (const it of items) {
-      // ----- IMAGE -----
-      if (it.type === 'image' || it.name === 'image') {
-        let src = it.src || it.url || '';
+    // Ensure it starts with "/" if it's a site-relative path
+    if (!/^https?:\/\//i.test(s) && !s.startsWith("/")) s = "/" + s;
 
-        // strip "public/" if CMS saved "public/uploads/..."
-        src = src.replace(/^public\//, '');
-
-        // if not http(s) and not already root-relative, make it root-relative
-        if (!/^https?:\/\//i.test(src) && !src.startsWith('/')) {
-          src = '/' + src.replace(/^\.?\//, '');
-        }
-
-        const fig = document.createElement('figure');
-        fig.className = 'gallery-item';
-        fig.innerHTML = `
-          <div class="media-frame">
-            <img loading="lazy" src="${src}" alt="${it.alt || ''}">
-          </div>`;
-        frag.appendChild(fig);
-      }
-
-      // ----- YOUTUBE -----
-      if (it.type === 'youtube' || it.name === 'youtube') {
-        const val = it.video || '';
-        let id = val;
-        try {
-          const u = new URL(val);
-          id = u.searchParams.get('v') || u.pathname.split('/').pop() || val;
-        } catch { /* already an ID */ }
-        const src = `https://www.youtube.com/embed/${id}?autoplay=0&mute=0&loop=1&playlist=${id}&controls=1&modestbranding=1&rel=0`;
-
-        const fig = document.createElement('figure');
-        fig.className = 'gallery-item';
-        fig.innerHTML = `
-          <div class="media-frame">
-            <iframe class="yt-contain" src="${src}"
-              allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-              allowfullscreen></iframe>
-          </div>`;
-        frag.appendChild(fig);
-      }
-    }
-
-    grid.replaceChildren(frag);
-  } catch (e) {
-    console.error('Gallery load failed:', e);
+    return s;
   }
+
+  // Fetch data authored in /content/gallery.json (committed by Decap)
+  const res = await fetch("/content/gallery.json", { cache: "no-store" });
+  if (!res.ok) throw new Error("Cannot load gallery.json");
+  const data = await res.json();
+  const items = Array.isArray(data.items) ? data.items : [];
+
+  // Helper: create a gallery card
+  function card(children) {
+    const fig = document.createElement("figure");
+    fig.className = "gallery-item";
+    const frame = document.createElement("div");
+    frame.className = "media-frame";
+    children.forEach(c => frame.appendChild(c));
+    fig.appendChild(frame);
+    return fig;
+  }
+
+  // Build DOM
+  const frag = document.createDocumentFragment();
+
+  items.forEach(item => {
+    if (item.image) {
+      const img = new Image();
+      img.loading = "lazy";
+      img.alt = item.alt || "";
+      img.src = resolveSrc(item.src || item.image || "");
+
+      // helpful debug if an image fails to load
+      img.addEventListener("error", () => {
+        console.error("Image failed:", img.src);
+        img.title = "Image not found: " + img.src;
+        img.style.outline = "2px solid #f00";
+      });
+
+      frag.appendChild(card([img]));
+    } else if (item.youtube) {
+      // Accept full YouTube URL or just the ID
+      let v = (item.video || item.youtube || "").trim();
+      const m = v.match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{6,})/);
+      const id = m ? m[1] : v;
+      const ifr = document.createElement("iframe");
+      ifr.className = "video-thumb yt-contain";
+      ifr.src = `https://www.youtube.com/embed/${id}?autoplay=0&mute=0&loop=1&playlist=${id}&controls=1&modestbranding=1&rel=0`;
+      ifr.setAttribute("frameborder", "0");
+      ifr.setAttribute("allow", "autoplay; encrypted-media; picture-in-picture; fullscreen");
+      ifr.allowFullscreen = true;
+      frag.appendChild(card([ifr]));
+    }
+  });
+
+  grid.innerHTML = "";
+  grid.appendChild(frag);
 })();
