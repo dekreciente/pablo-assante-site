@@ -1,74 +1,69 @@
-// js/gallery-loader.js
-(async function () {
-  const grid = document.getElementById('gallery-grid');
-  if (!grid) return;
+// /js/gallery-loader.js
+(function () {
+  const GRID_ID = "gallery-grid";
+  const DATA_URL = "/data/gallery.json"; // ver sección 3
 
-  // Normalize any path the CMS gives us to something the site can serve
-  function resolveSrc(p) {
-    if (!p) return "";
-    let s = String(p).trim();
-
-    // If the CMS stored a repo path, map it to the public URL
-    // e.g. "public/uploads/file.jpg" -> "/uploads/file.jpg"
-    s = s.replace(/^\/?public\/uploads/i, "/uploads");
-    s = s.replace(/^public\//i, "/");        // just in case
-
-    // Ensure it starts with "/" if it's a site-relative path
-    if (!/^https?:\/\//i.test(s) && !s.startsWith("/")) s = "/" + s;
-
-    return s;
+  function el(tag, attrs = {}, ...children) {
+    const node = document.createElement(tag);
+    Object.entries(attrs).forEach(([k, v]) => {
+      if (k === "class") node.className = v;
+      else if (k.startsWith("data-")) node.setAttribute(k, v);
+      else if (k in node) node[k] = v;
+      else node.setAttribute(k, v);
+    });
+    children.flat().forEach(c => node.append(c && c.nodeType ? c : document.createTextNode(c)));
+    return node;
   }
 
-  // Fetch data authored in /content/gallery.json (committed by Decap)
-  const res = await fetch("/content/gallery.json", { cache: "no-store" });
-  if (!res.ok) throw new Error("Cannot load gallery.json");
-  const data = await res.json();
-  const items = Array.isArray(data.items) ? data.items : [];
+  async function load() {
+    const grid = document.getElementById(GRID_ID);
+    if (!grid) return;
 
-  // Helper: create a gallery card
-  function card(children) {
-    const fig = document.createElement("figure");
-    fig.className = "gallery-item";
-    const frame = document.createElement("div");
-    frame.className = "media-frame";
-    children.forEach(c => frame.appendChild(c));
-    fig.appendChild(frame);
-    return fig;
-  }
+    try {
+      const res = await fetch(DATA_URL, { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const items = await res.json(); // [{src, alt, title, width, height}]
+      if (!Array.isArray(items)) throw new Error("JSON no es un array");
 
-  // Build DOM
-  const frag = document.createDocumentFragment();
+      grid.innerHTML = "";
+      if (items.length === 0) {
+        grid.append(el("p", { class: "empty" }, "No hay imágenes todavía."));
+        return;
+      }
 
-  items.forEach(item => {
-    if (item.image) {
-      const img = new Image();
-      img.loading = "lazy";
-      img.alt = item.alt || "";
-      img.src = resolveSrc(item.src || item.image || "");
-
-      // helpful debug if an image fails to load
-      img.addEventListener("error", () => {
-        console.error("Image failed:", img.src);
-        img.title = "Image not found: " + img.src;
-        img.style.outline = "2px solid #f00";
-      });
-
-      frag.appendChild(card([img]));
-    } else if (item.youtube) {
-      // Accept full YouTube URL or just the ID
-      let v = (item.video || item.youtube || "").trim();
-      const m = v.match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{6,})/);
-      const id = m ? m[1] : v;
-      const ifr = document.createElement("iframe");
-      ifr.className = "video-thumb yt-contain";
-      ifr.src = `https://www.youtube.com/embed/${id}?autoplay=0&mute=0&loop=1&playlist=${id}&controls=1&modestbranding=1&rel=0`;
-      ifr.setAttribute("frameborder", "0");
-      ifr.setAttribute("allow", "autoplay; encrypted-media; picture-in-picture; fullscreen");
-      ifr.allowFullscreen = true;
-      frag.appendChild(card([ifr]));
+      for (const item of items) {
+        const { src, alt = "", title = "", width, height } = item;
+        const img = el("img", {
+          loading: "lazy",
+          decoding: "async",
+          alt,
+          src,
+          width,
+          height
+        });
+        const fig = el(
+          "figure",
+          { class: "gallery-item" },
+          img,
+          title ? el("figcaption", {}, title) : null
+        );
+        grid.append(fig);
+      }
+    } catch (err) {
+      console.error("Error cargando galería:", err);
+      const grid = document.getElementById(GRID_ID);
+      if (grid) {
+        grid.innerHTML = "";
+        grid.append(
+          el("p", { class: "error" }, "No se pudo cargar la galería. Revisa la consola.")
+        );
+      }
     }
-  });
+  }
 
-  grid.innerHTML = "";
-  grid.appendChild(frag);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", load);
+  } else {
+    load();
+  }
 })();
