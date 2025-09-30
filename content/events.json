@@ -1,10 +1,3 @@
 {
-  "events": [
-    {
-      "title": "Barcelona",
-      "tags": "Charla",
-      "location": "Barcelona",
-      "start": "2025-09-30T14:51:00.000+01:00"
-    }
-  ]
+  "events": []
 }
