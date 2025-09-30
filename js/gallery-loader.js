@@ -1,71 +1,52 @@
 // js/gallery-loader.js
-(async function () {
+(async () => {
   try {
-    const res = await fetch('/content/gallery.json', { cache: 'no-store' });
-    if (!res.ok) throw new Error('Cannot load gallery.json');
+    const res = await fetch('/content/gallery.json', { cache: 'no-store' }); // <-- leading slash
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    const items = Array.isArray(data.items) ? data.items : [];
+    const items = Array.isArray(data.items) ? data.items : data;
 
     const grid = document.getElementById('gallery-grid');
     if (!grid) return;
 
-    // Helper: accept YouTube ID or full URL
-    const getYouTubeId = (input) => {
-      if (!input) return '';
-      // If looks like a raw ID, return it
-      if (/^[A-Za-z0-9_-]{11}$/.test(input)) return input;
-      // Else try to extract from URL
-      try {
-        const u = new URL(input);
-        if (u.hostname.includes('youtu.be')) {
-          return u.pathname.slice(1);
-        }
-        if (u.hostname.includes('youtube.com')) {
-          if (u.searchParams.get('v')) return u.searchParams.get('v');
-          const match = u.pathname.match(/\/embed\/([^/?#]+)/);
-          if (match) return match[1];
-        }
-      } catch (_) {}
-      return input; // fallback
-    };
+    const frag = document.createDocumentFragment();
 
-    const toCard = (it) => {
-      // IMAGE
-      if (it.image && it.image.src) {
-        const src = it.image.src;
-        const alt = it.image.alt || '';
-        return `
-          <figure class="gallery-item">
-            <div class="media-frame">
-              <img src="${src}" alt="${alt}" loading="lazy" />
-            </div>
-          </figure>`;
+    for (const it of items) {
+      // image
+      if (it.type === 'image' || it.name === 'image') {
+        const fig = document.createElement('figure');
+        fig.className = 'gallery-item';
+        fig.innerHTML = `
+          <div class="media-frame">
+            <img loading="lazy" src="${it.src}" alt="${it.alt || ''}">
+          </div>`;
+        frag.appendChild(fig);
       }
 
-      // YOUTUBE
-      if (it.youtube && it.youtube.video) {
-        const id = getYouTubeId(it.youtube.video);
-        if (!id) return '';
-        const embed = `https://www.youtube.com/embed/${id}?autoplay=0&mute=0&loop=1&playlist=${id}&controls=1&modestbranding=1&rel=0`;
-        return `
-          <figure class="gallery-item">
-            <div class="media-frame">
-              <iframe class="video-thumb yt-contain"
-                src="${embed}"
-                title="${it.youtube.title ? it.youtube.title.replace(/"/g, '&quot;') : 'YouTube video'}"
-                frameborder="0"
-                allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-                allowfullscreen>
-              </iframe>
-            </div>
-          </figure>`;
+      // YouTube
+      if (it.type === 'youtube' || it.name === 'youtube') {
+        const val = it.video || '';
+        let id = val;
+        try {
+          const u = new URL(val);
+          id = u.searchParams.get('v') || u.pathname.split('/').pop() || val;
+        } catch (_) { /* value was already an ID */ }
+        const src = `https://www.youtube.com/embed/${id}?autoplay=0&mute=0&loop=1&playlist=${id}&controls=1&modestbranding=1&rel=0`;
+
+        const fig = document.createElement('figure');
+        fig.className = 'gallery-item';
+        fig.innerHTML = `
+          <div class="media-frame">
+            <iframe class="yt-contain" src="${src}"
+              allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+              allowfullscreen></iframe>
+          </div>`;
+        frag.appendChild(fig);
       }
+    }
 
-      return '';
-    };
-
-    grid.innerHTML = items.map(toCard).join('');
+    grid.replaceChildren(frag);
   } catch (err) {
-    console.error(err);
+    console.error('Gallery load failed:', err);
   }
 })();
