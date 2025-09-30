@@ -28,28 +28,35 @@
     return /^[A-Za-z0-9_-]{11}$/.test(input) ? input : null;
   };
 
-  const renderImage = ({ src, alt = "", title = "", width, height }) =>
-    el("figure", { class: "gallery-item" },
-      el("img", { src, alt, loading: "lazy", decoding: "async", width, height }),
-      title ? el("figcaption", {}, title) : null
-    );
+const renderImage = ({ src, alt = "", title = "", width, height }) =>
+  el("figure", { class: "gallery-item" },
+    el("div", { class: "media-frame" },   // ⬅️ contenedor con alto fijo por CSS
+      el("img", { src, alt, loading: "lazy", decoding: "async", width, height })
+    ),
+    title ? el("figcaption", {}, title) : null
+  );
 
-  const renderYouTube = ({ video, title = "" }) => {
-    const id = youtubeId(video);
-    if (!id) return el("div", { class: "gallery-item error" }, "Video de YouTube inválido");
-    const wrap = el("div", { class: "yt-wrap" },
-      el("iframe", {
-        src: `https://www.youtube.com/embed/${id}`,
-        title: title || "YouTube video",
-        frameBorder: "0",
-        allow: "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share",
-        allowFullscreen: true,
-        loading: "lazy",
-        referrerPolicy: "no-referrer-when-downgrade"
-      })
-    );
-    return el("figure", { class: "gallery-item" }, wrap, title ? el("figcaption", {}, title) : null);
-  };
+const renderYouTube = ({ video, title = "" }) => {
+  const id = youtubeId(video);
+  if (!id) return el("div", { class: "gallery-item error" }, "Video de YouTube inválido");
+
+  // para que el iframe encaje dentro de 4:3 sin recortes, usa .yt-contain (letterbox)
+  const iframe = el("iframe", {
+    src: `https://www.youtube.com/embed/${id}`,
+    title: title || "YouTube video",
+    frameBorder: "0",
+    allow: "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share",
+    allowFullscreen: true,
+    loading: "lazy",
+    referrerPolicy: "no-referrer-when-downgrade",
+    className: "yt-contain" // ⬅️ ya definida en tu CSS
+  });
+
+  return el("figure", { class: "gallery-item" },
+    el("div", { class: "media-frame" }, iframe),
+    title ? el("figcaption", {}, title) : null
+  );
+};
 
   async function load() {
     const grid = document.getElementById(GRID_ID);
