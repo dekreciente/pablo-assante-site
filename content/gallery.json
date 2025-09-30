@@ -1,18 +1,7 @@
 {
   "items": [
-    {
-      "src": "/uploads/requiem_mozart_liceu_01.jpg",
-      "alt": "Requiem en el Liceu",
-      "title": "Requiem Liceu"
-    },
-    {
-      "video": "https://youtu.be/dQw4w9WgXcQ",
-      "title": "Video en YouTube"
-    },
-    {
-      "src": "/uploads/foto_sobremi.jpg",
-      "alt": "Retrato",
-      "title": "Sobre mí"
-    }
+    { "type": "image", "src": "/public/uploads/foto_sobremi.jpg" },
+    { "type": "image", "src": "/public/uploads/requiem_mozart_liceu_01.jpg" },
+    { "type": "youtube", "video": "https://www.youtube.com/watch?v=h1UjcQVMj8" }
   ]
 }

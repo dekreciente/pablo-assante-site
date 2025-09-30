@@ -3,30 +3,14 @@
   const grid = document.getElementById('gallery-grid');
   if (!grid) return;
 
-  // ✅ Siempre servimos desde /public/uploads/...
-  function resolveSrc(p) {
-    if (!p) return "";
-    let s = String(p).trim();
-
-    // "public/uploads/archivo.jpg"  -> "/public/uploads/archivo.jpg"
-    if (s.startsWith("public/")) s = "/" + s.replace(/^\/?/, "");
-
-    // "/uploads/archivo.jpg"        -> "/public/uploads/archivo.jpg"
-    if (s.startsWith("/uploads/")) s = s.replace(/^\/uploads\//, "/public/uploads/");
-
-    // "uploads/archivo.jpg"         -> "/public/uploads/archivo.jpg"
-    if (!s.startsWith("/") && s.startsWith("uploads/")) s = "/public/" + s;
-
-    return s;
-  }
-
   try {
     const res = await fetch("/content/gallery.json", { cache: "no-store" });
-    if (!res.ok) throw new Error("Cannot load gallery.json");
+    if (!res.ok) throw new Error("No se pudo cargar gallery.json");
     const data = await res.json();
     const items = Array.isArray(data.items) ? data.items : [];
     console.log("[gallery] items:", items.length);
 
+    // --- helpers ---
     const card = (...children) => {
       const fig = document.createElement("figure");
       fig.className = "gallery-item";
@@ -42,24 +26,26 @@
       return m ? m[1] : String(v);
     };
 
+    // --- build ---
     const frag = document.createDocumentFragment();
-
     for (const it of items) {
-      if ((it.type === "image" || it.src) && it.src) {
+      if (it.type === "image" && it.src) {
         const img = new Image();
         img.loading = "lazy";
         img.decoding = "async";
         img.alt = it.alt || "";
-        img.src = resolveSrc(it.src);   // ⬅️ usa el normalizador correcto
+        img.src = it.src; // ✅ ya viene correcto desde el CMS (/public/uploads/...)
         frag.appendChild(card(img));
-
-      } else if ((it.type === "youtube" || it.video) && it.video) {
+      } else if (it.type === "youtube" && it.video) {
         const id = ytId(it.video);
         const ifr = document.createElement("iframe");
         ifr.className = "yt-contain";
         ifr.src = `https://www.youtube.com/embed/${id}?autoplay=0&controls=1&modestbranding=1&rel=0`;
         ifr.allowFullscreen = true;
-        ifr.setAttribute("allow","accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share");
+        ifr.setAttribute(
+          "allow",
+          "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        );
         frag.appendChild(card(ifr));
       }
     }
