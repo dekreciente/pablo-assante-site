@@ -2,13 +2,8 @@
   "items": [
     {
       "type": "image",
-      "src": "fotos/unnamed.jpg",
+      "src": "/uploads/foto_sobremi.jpg",
       "alt": "Imagen"
-    },
-    {
-      "type": "youtube",
-      "video": "M7lc1UVf-VE",
-      "title": "Demo YouTube"
     }
   ]
 }
