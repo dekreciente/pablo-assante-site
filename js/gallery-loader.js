@@ -3,7 +3,22 @@
   const grid = document.getElementById('gallery-grid');
   if (!grid) return;
 
-  const normalize = (p) => (p||'').replace(/^\/?public\/uploads/i,'/uploads').replace(/^public\//i,'/');
+  // ✅ Siempre servimos desde /public/uploads/...
+  function resolveSrc(p) {
+    if (!p) return "";
+    let s = String(p).trim();
+
+    // "public/uploads/archivo.jpg"  -> "/public/uploads/archivo.jpg"
+    if (s.startsWith("public/")) s = "/" + s.replace(/^\/?/, "");
+
+    // "/uploads/archivo.jpg"        -> "/public/uploads/archivo.jpg"
+    if (s.startsWith("/uploads/")) s = s.replace(/^\/uploads\//, "/public/uploads/");
+
+    // "uploads/archivo.jpg"         -> "/public/uploads/archivo.jpg"
+    if (!s.startsWith("/") && s.startsWith("uploads/")) s = "/public/" + s;
+
+    return s;
+  }
 
   try {
     const res = await fetch("/content/gallery.json", { cache: "no-store" });
@@ -21,19 +36,23 @@
       fig.appendChild(frame);
       return fig;
     };
+
     const ytId = (v) => {
       const m = String(v).match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
       return m ? m[1] : String(v);
     };
 
     const frag = document.createDocumentFragment();
+
     for (const it of items) {
       if ((it.type === "image" || it.src) && it.src) {
         const img = new Image();
-        img.loading = "lazy"; img.decoding = "async";
+        img.loading = "lazy";
+        img.decoding = "async";
         img.alt = it.alt || "";
-        img.src = normalize(it.src);
+        img.src = resolveSrc(it.src);   // ⬅️ usa el normalizador correcto
         frag.appendChild(card(img));
+
       } else if ((it.type === "youtube" || it.video) && it.video) {
         const id = ytId(it.video);
         const ifr = document.createElement("iframe");
