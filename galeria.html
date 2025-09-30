@@ -6,10 +6,38 @@
   <title>Pablo Assante</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://use.typekit.net/psw6vhf.css">
+
+  <!-- Minimal lightbox CSS (non-intrusive) -->
+  <style>
+    .lb-backdrop{
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.8);
+      display: grid; place-items: center;
+      padding: 24px;
+    }
+    .lb-panel{
+      max-width: min(1200px, 92vw);
+      max-height: 88vh;
+      position: relative;
+    }
+    .lb-media > *{
+      display:block; max-width: 100%; max-height: 88vh;
+      border-radius: 8px; background:#000;
+    }
+    .lb-close{
+      position:absolute; top:-12px; right:-12px;
+      width:36px; height:36px; border-radius:999px;
+      border:1px solid #000; background:#FFFFC8; cursor:pointer;
+      font-size:20px; line-height:36px; text-align:center;
+    }
+    @media (max-width: 600px){
+      .lb-close{ top:-8px; right:-8px; }
+    }
+  </style>
 </head>
 <body>
 
- <header>
+<header>
   <div class="name"><a href="/index.html">Pablo Assante</a></div>
 
   <!-- Botón hamburguesa (solo visible en móvil) -->
@@ -28,172 +56,89 @@
 </header>
 
 <main class="gallery-content">
-
-  <section class="gallery-grid">
-    <!-- IMAGE -->
-    <figure class="gallery-item">
-      <div class="media-frame">
-        <img
-          src="fotos/Requiem_Mozart_Liceu_01.jpg"
-          alt="Descripción de la imagen"
-          loading="lazy"
-          width="1200" height="1500"
-        />
-      </div>
-    </figure>
-
-    <!-- VIDEO (silent preview) -->
-<figure class="gallery-item">
-  <div class="media-frame">
-    <iframe
-      class="video-thumb yt-contain"
-      src="https://www.youtube.com/embed/hl1UjcVQMj8?autoplay=0&mute=0&loop=1&playlist=hl1UjcVQMj8&controls=1&modestbranding=1&rel=0"
-      frameborder="0"
-      allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-      allowfullscreen
-    ></iframe>
-  </div>
-</figure>
-
-
-
-
-
-    <!-- IMAGE -->
-    <figure class="gallery-item">
-      <div class="media-frame">
-        <img
-          src="fotos/unnamed.jpg"
-          alt="Descripción de la imagen"
-          loading="lazy"
-          width="1600" height="1600"
-        />
-      </div>
-    </figure>
-
-
-    <!-- IMAGE -->
-    <figure class="gallery-item">
-      <div class="media-frame">
-        <img
-          src="fotos/unnamed.jpg"
-          alt="Descripción de la imagen"
-          loading="lazy"
-          width="1600" height="1600"
-        />
-      </div>
-    </figure>
-
-
-    <!-- Add as many items as you like; set --ratio to control crop -->
-
-    
+  <section class="gallery-grid" id="gallery-grid">
+    <!-- Items injected by js/gallery-loader.js -->
   </section>
 </main>
 
-
-
-
-
-
-
-
-<script>
-  // --- Autoplay thumbnails when visible ---
-  const videoThumbs = document.querySelectorAll('.video-thumb');
-  if (videoThumbs.length) {
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        const v = e.target;
-        if (e.isIntersecting) v.play().catch(() => {});
-        else v.pause();
-      });
-    }, { threshold: 0.25 });
-    videoThumbs.forEach(v => io.observe(v));
-  }
-
-  // --- Simple Lightbox for images & videos ---
-  const lb = document.querySelector('.lb-backdrop');
-  const lbMedia = document.querySelector('.lb-media');
-  const lbCaption = document.querySelector('.lb-caption');
-  const lbClose = document.querySelector('.lb-close');
-
-  function openLB(node, caption){
-    lb.hidden = false;
-    lbMedia.innerHTML = ''; // reset
-
-    const isVideo = node.tagName.toLowerCase() === 'video';
-    const clone = isVideo ? document.createElement('video') : new Image();
-
-    if (isVideo) {
-      clone.controls = true;
-      clone.playsInline = true;
-      clone.innerHTML = node.innerHTML; // copy <source> children
-      // If single source:
-      const src = node.querySelector('source')?.getAttribute('src') || node.getAttribute('src');
-      if (src) clone.src = src;
-      clone.poster = node.getAttribute('poster') || '';
-    } else {
-      clone.src = node.currentSrc || node.src;
-      clone.alt = node.alt || '';
-    }
-
-    lbMedia.appendChild(clone);
-    lbCaption.textContent = caption || '';
-    if (isVideo) clone.play().catch(() => {});
-  }
-
-  document.addEventListener('click', (e) => {
-    const media = e.target.closest('.media-frame img, .media-frame video');
-    if (media) {
-      const cap = media.closest('figure')?.querySelector('figcaption')?.textContent?.trim();
-      openLB(media, cap);
-    }
-    if (e.target === lb || e.target === lbClose) {
-      lb.hidden = true;
-      lbMedia.innerHTML = '';
-    }
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !lb.hidden) {
-      lb.hidden = true;
-      lbMedia.innerHTML = '';
-    }
-  });
-</script>
-
+<!-- Lightbox -->
+<div class="lb-backdrop" id="lb" hidden aria-modal="true" role="dialog">
+  <div class="lb-panel">
+    <button class="lb-close" id="lb-close" aria-label="Cerrar">×</button>
+    <div class="lb-media" id="lb-media"></div>
+  </div>
+</div>
 
 <script>
+  // --- Responsive menú ---
   (function () {
     const btn = document.querySelector('.menu-toggle');
     const nav = document.getElementById('site-menu');
-
     if (!btn || !nav) return;
 
     function setOpen(open) {
       btn.setAttribute('aria-expanded', String(open));
       nav.classList.toggle('open', open);
     }
-
     btn.addEventListener('click', () => {
       const isOpen = btn.getAttribute('aria-expanded') === 'true';
       setOpen(!isOpen);
     });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
+    nav.addEventListener('click', (e) => { if (e.target.closest('a')) setOpen(false); });
+  })();
 
-    // Cerrar al pulsar Esc
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') setOpen(false);
+  // --- Lightbox for images & YouTube iframes (delegated) ---
+  (function () {
+    const grid = document.getElementById('gallery-grid');
+    const lb = document.getElementById('lb');
+    const lbMedia = document.getElementById('lb-media');
+    const lbClose = document.getElementById('lb-close');
+
+    function openLB(node){
+      lb.hidden = false;
+      lbMedia.innerHTML = '';
+
+      if (node.tagName.toLowerCase() === 'img') {
+        const img = new Image();
+        img.src = node.currentSrc || node.src;
+        img.alt = node.alt || '';
+        lbMedia.appendChild(img);
+      } else if (node.tagName.toLowerCase() === 'iframe') {
+        // copy YouTube embed, turn on autoplay
+        const url = new URL(node.src);
+        url.searchParams.set('autoplay', '1');
+        const ifr = document.createElement('iframe');
+        ifr.src = url.toString();
+        ifr.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+        ifr.allowFullscreen = true;
+        ifr.setAttribute('title', node.getAttribute('title') || 'Video');
+        ifr.style.width = 'min(1200px, 92vw)';
+        ifr.style.height = 'min(70vh, 56.25vw)'; // keep 16:9-ish
+        lbMedia.appendChild(ifr);
+      }
+    }
+    function closeLB(){
+      lb.hidden = true;
+      lbMedia.innerHTML = '';
+    }
+
+    // open on click inside the grid
+    document.addEventListener('click', (e) => {
+      const media = e.target.closest('#gallery-grid .media-frame img, #gallery-grid .media-frame iframe');
+      if (media) {
+        e.preventDefault();
+        openLB(media);
+      }
+      if (!lb.hidden && (e.target === lb || e.target === lbClose)) closeLB();
     });
-
-    // Cerrar al tocar un enlace
-    nav.addEventListener('click', (e) => {
-      if (e.target.closest('a')) setOpen(false);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !lb.hidden) closeLB();
     });
   })();
 </script>
 
-
-  <script src="/js/gallery-loader.js" defer></script>
+<!-- Loader for gallery items from CMS -->
+<script src="/js/gallery-loader.js" defer></script>
 </body>
 </html>
