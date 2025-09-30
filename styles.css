@@ -1,0 +1,540 @@
+@font-face {
+  font-family: 'Space Grotesk';
+  src: url('fonts/SpaceGrotesk-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Space Grotesk';
+  src: url('fonts/SpaceGrotesk-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Space Grotesk';
+  src: url('fonts/SpaceGrotesk-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Space Grotesk';
+  src: url('fonts/SpaceGrotesk-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Space Grotesk';
+  src: url('fonts/authentic-sans-90.otf') format('woff2');
+  font-style: normal;
+  font-weight: 100;
+}
+
+
+/* Base */
+body {
+  margin: 0;
+  font-family: 'Authentic Sans', sans-serif;
+  background-color: #ccd1d5;
+  /* compensa el header fijo (ajusta si cambias el alto) */
+  padding-top: 92px;
+}
+
+/* Header */
+header {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  background-color: #FFFFC8;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  z-index: 1000;
+  border-bottom: 1px solid black;
+}
+
+a {
+  text-decoration: none; 
+  color: inherit; 
+}
+
+/* Nombre */
+.name {
+  font-size: 50px;
+  font-weight: 500;
+  color: #222;
+}
+
+/* Nav (escritorio) */
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 30px;
+  margin: 0;
+  padding-right: 70px;
+}
+nav ul li a {
+  text-decoration: none;
+  color: #333;
+  font-size: 22px;
+  transition: color 0.3s ease;
+}
+nav ul li a:hover { color: #666; }
+
+/* Botón hamburguesa (oculto en escritorio) */
+.menu-toggle {
+  display: none;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 8px;
+  margin-left: auto;
+  margin-right: 22px;
+}
+.menu-toggle .bar {
+  display: block;
+  width: 26px;
+  height: 2px;
+  background: #222;
+  margin: 5px 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+
+
+/* Image frame (left) */
+.home-figure {
+  grid-area: fig;
+  padding: 14px;
+  margin: 0;
+  border-radius: 12px;
+  filter: grayscale(100%);   /* makes the image black and white */
+}
+.home-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid #000;
+}
+
+/* ---------- Responsive: menú desplegable móvil ---------- */
+@media (max-width: 768px) {
+  header {
+    padding: 14px 18px;
+  }
+
+  .name { font-size: 32px; }
+
+  /* mostrar toggle y convertir nav en dropdown */
+  .menu-toggle { display: block; }
+
+  nav {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 80%;
+    max-width: 320px;
+    background: #FFFFC8;
+    border: 1px solid #000;
+    border-top: none;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+
+    /* cerrado por defecto */
+    opacity: 0;
+    transform: translateY(-8px);
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  nav ul {
+    flex-direction: column;
+    gap: 0;
+    padding: 10px;
+    margin: 0;
+    padding-right: 0; /* quitar padding de escritorio */
+  }
+
+  nav ul li a {
+    display: block;
+    padding: 12px 14px;
+    font-size: 18px;
+    border-radius: 8px;
+  }
+  nav ul li a:hover { background: rgba(0,0,0,0.06); }
+
+  /* abierto */
+  nav.open {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  /* animación hamburguesa -> X */
+  .menu-toggle[aria-expanded="true"] .bar:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+  .menu-toggle[aria-expanded="true"] .bar:nth-child(2) { opacity: 0; }
+  .menu-toggle[aria-expanded="true"] .bar:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+}
+
+/* móviles muy pequeños */
+@media (max-width: 420px) {
+  .name { font-size: 26px; }
+  nav { width: 92%; }
+}
+
+/* ===== Using this book section ===== */
+.sobremi-content {
+  max-width: 1100px;
+  margin: 56px auto 80px;
+  padding: 0 24px;
+}
+
+.sobremi-title {
+  text-align: center;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  font-size: clamp(36px, 6vw, 64px);
+  line-height: 1.05;
+  margin: 8px 0 28px;
+  color: #1a1a1a;
+}
+
+/* 2-column on desktop, named areas for easy reordering */
+.sobremi-grid {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 28px;
+  align-items: start;
+  margin-top: 100px;
+  grid-template-areas: "fig panel";
+}
+
+/* Image frame (left) */
+.sobremi-figure {
+  grid-area: fig;
+  background: #FFFFC8;          /* soft frame */
+  padding: 14px;
+  border: 1px solid #000;
+  margin: 0;
+  border-radius: 12px;
+}
+.sobremi-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid #000;
+  border-radius: 8px;
+}
+
+/* Content panel (right) */
+.sobremi-panel {
+  grid-area: panel;
+  background: #FFFFC8;
+  border: 1px solid #000;
+  padding: 22px 24px;
+  border-radius: 12px;
+}
+
+.sobremi-block + .sobremi-block { margin-top: 18px; }
+
+.sobremi-eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0 0 6px;
+  color: #222;
+}
+
+.sobremi-panel p {
+  margin: 0;
+  line-height: 1.6;
+  color: #222;
+}
+
+.sobremi-note {
+  margin-top: 16px;
+  font-weight: 500;
+}
+
+/* ===== Responsive ===== */
+
+/* Tablet: give more room and soften spacing a bit */
+@media (max-width: 900px) {
+  .sobremi-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "fig"
+      "panel";
+    gap: 18px;
+    margin-top: 56px;
+  }
+  .sobremi-figure {
+    max-width: 520px;
+    margin: 0 auto;
+  }
+}
+
+/* Phone: tighter paddings and font sizes, image on top, text below */
+@media (max-width: 600px) {
+  .sobremi-content {
+    margin: 40px auto 64px;
+    padding: 0 16px;
+  }
+  .sobremi-title {
+    font-size: clamp(28px, 8vw, 40px);
+    margin-bottom: 16px;
+  }
+  .sobremi-panel {
+    padding: 16px;
+  }
+  .sobremi-figure {
+    padding: 10px;
+    border-radius: 10px;
+  }
+  .sobremi-figure img {
+    border-radius: 6px;
+  }
+}
+
+/* ===== Agenda estilo listado minimal ===== */
+.agenda-content{
+  max-width: 1500px;
+  margin: 120px auto 80px;
+  padding: 0 24px;
+}
+.agenda-wrap{
+  overflow-x: auto;      /* scroll horizontal si es necesario */
+}
+
+/* tabla sin caja, líneas finas y tipografía compacta */
+.agenda-table{
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  background: transparent;
+  color: #111;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.agenda-table thead th{
+  text-align: left;
+  padding: 10px 12px;
+  color: #000000;                     /* gris suave */
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  border-bottom: 1px solid #000000;
+  white-space: nowrap;
+  position: sticky; top: 0; z-index: 1;
+  background: #eef2f7;               
+}
+
+/* indicador de orden en DATE */
+.agenda-table thead th.is-date{ cursor: pointer; }
+.agenda-table thead th.is-date::after{
+  content: ' ';
+  display: inline-block;
+  margin-left: 6px;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+}
+.agenda-table thead th.is-date[aria-sort="ascending"]::after{
+  border-bottom: 6px solid #111;
+}
+.agenda-table thead th.is-date[aria-sort="descending"]::after{
+  border-top: 6px solid #000000;
+}
+
+/* filas */
+.agenda-table td{
+  padding: 14px 12px;
+  border-bottom: 1px solid #000000;
+  vertical-align: top;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.agenda-table tbody tr:hover{ background: #FFFFC8; } /* hover muy sutil */
+
+/* columnas */
+.agenda-table .ev-title{ font-weight: 500; color:#111; }
+.agenda-table .ev-tags{ color:#6b7280; }
+.agenda-table .ev-date{ color:#111; white-space: nowrap; }
+.agenda-table .ev-loc{ color:#111; }
+.agenda-table .ev-link{ width: 36px; text-align: right; }
+.agenda-table .ev-link a{
+  display:inline-block; padding:2px 4px; border-radius:6px;
+}
+.agenda-table .ev-link a:hover{ background:#eef2f7; }
+
+/* columna estrecha para el icono final */
+.agenda-table th.thin{ width: 36px; }
+
+/* responsive */
+@media (max-width: 900px){
+  .agenda-table{ font-size: 14px; }
+  .agenda-table thead th{ font-size: 10px; }
+}
+@media (max-width: 640px){
+  /* En móvil mantenemos el layout en fila con scroll lateral si hace falta */
+  .agenda-content{ padding: 0 18px; }
+}
+
+/* ===== Gallery (fixed 3 columns) ===== */
+.gallery-content{
+  max-width: 2200px;
+  margin: 120px auto 72px;
+  padding: 0 16px;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)); /* fixed 3 columns */
+  gap: 14px;
+  justify-content: center; /* optional */
+}
+
+/* Tablet: 2 cols */
+@media (max-width: 800px){
+  .gallery-grid{ grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Phone: 1 col */
+@media (max-width: 520px){
+  .gallery-grid{ grid-template-columns: 1fr; }
+}
+
+/* Card */
+.gallery-item{
+  background:#FFFFC8;
+  border:1px solid #000;
+  border-radius:12px;
+  padding:8px;                /* tighter padding = smaller look */
+  display:flex;
+  flex-direction:column;
+}
+
+/* Fixed aspect for every card (change 4/3 if you prefer 3/2 or 16/9) */
+.gallery-item .media-frame{
+  position: relative;
+  overflow: hidden;
+  border:1px solid #000;
+  border-radius:8px;
+  aspect-ratio: 4 / 3;        /* uniform size */
+  background:#000;
+}
+
+/* Fill the frame; neat, consistent tiles */
+.gallery-item img,
+.gallery-item video{
+  width:100%;
+  height:100%;
+  object-fit: cover;          /* crop edges so every tile looks full */
+  display:block;
+}
+
+/* Optional: add .fit-contain on any media you don't want cropped */
+.fit-contain{ object-fit: contain; background:#000; }
+
+/* Caption (kept compact) */
+.gallery-item figcaption{
+  font-size: 13px;
+  color:#222;
+  margin: 8px 4px 0;
+  line-height: 1.35;
+}
+
+/* Hover */
+.gallery-item:hover{
+  box-shadow: 0 6px 16px rgba(0,0,0,.10);
+  transform: translateY(-1px);
+  transition: box-shadow .18s ease, transform .18s ease;
+}
+
+/* Make iframes behave like your images/videos */
+.gallery-item iframe{
+  display:block;
+  border:0;
+  position:absolute;       /* inside .media-frame (already position:relative) */
+  left:50%;
+  top:50%;
+  transform:translate(-50%, -50%);
+}
+
+/* Contain a 16:9 video inside a 4:3 box (no crop, letterbox) */
+.yt-contain{
+  width:100%;
+  height:56.25%;           /* 9/16 of the width */
+}
+
+/* If you ever want crop/fill again, use .yt-cover instead */
+.yt-cover{
+  height:100%;
+  width:177.78%;           /* 16/9 of the height */
+}
+
+/* ===== Using this book section ===== */
+.contacto-content {
+  max-width: 600px;
+  margin: 56px auto 80px;
+  padding: 0 24px;
+  margin-top: 122px;
+}
+
+/* 2-column on desktop, named areas for easy reordering */
+.contacto-grid {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 28px;
+  align-items: start;
+  margin-top: 100px;
+  grid-template-areas: "fig panel";
+}
+
+/* Content panel (right) */
+.contacto-panel {
+  grid-area: panel;
+  background: #FFFFC8;
+  border: 1px solid #000;
+  padding: 22px 24px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.contacto-note {
+  margin-top: 16px;
+  font-weight: 500;
+  font-size: 22px;
+}
+
+.contacto-block + .contacto-block { margin-top: 18px; }
+
+.contacto-eyebrow {
+  font-size: 24px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0 0 6px;
+  color: #222;
+}
+
+.contacto-panel p {
+  margin: 0;
+  line-height: 1.6;
+  color: #222;
+}
+
+.contacto-note {
+  margin-top: 16px;
+  font-weight: 500;
+}
+
+a:hover { color: #666; }

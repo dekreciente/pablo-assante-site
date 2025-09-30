@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sobre mi</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://use.typekit.net/psw6vhf.css">
+</head>
+<body>
+
+ <header>
+  <div class="name"><a href="/index.html">Pablo Assante</a></div>
+
+  <!-- Botón hamburguesa (solo visible en móvil) -->
+  <button class="menu-toggle" aria-expanded="false" aria-controls="site-menu" aria-label="Abrir menú">
+    <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+  </button>
+
+  <nav id="site-menu">
+    <ul>
+      <li><a href="/sobremi.html">Sobre mi</a></li>
+      <li><a href="/galeria.html">Galería</a></li>
+      <li><a href="/calendario.html">Calendario</a></li>
+      <li><a href="/contacto.html">Contacto</a></li>
+    </ul>
+  </nav>
+</header>
+
+
+<main>
+  <section class="sobremi-content" id="sobremi-content">
+
+    <div class="sobremi-grid">
+      <!-- Left image -->
+      <figure class="sobremi-figure">
+        <img src="fotos/foto_sobremi.JPG" alt="foto compositor pablo assante">
+      </figure>
+
+      <!-- Right green panel -->
+      <div class="sobremi-panel">
+        <div class="sobremi-block">
+          <h2 class="sobremi-eyebrow">Un poco sobre mi:</h2>
+          <p>
+            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Magni atque odit magnam, consectetur soluta debitis temporibus laborum ratione unde vel asperiores, ullam ex iure laudantium maxime. Mollitia, neque magnam. Nihil.
+          </p>
+        </div>
+
+        <div class="sobremi-block">
+          <h2 class="sobremi-eyebrow">Mi carrera:</h2>
+          <p>
+            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Magni atque odit magnam, consectetur soluta debitis temporibus laborum ratione unde vel asperiores, ullam ex iure laudantium maxime. Mollitia, neque magnam. Nihil.
+          </p>
+        </div>
+
+        <p class="sobremi-note">
+          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Maxime saepe, enim quia dolorum a nam pariatur, dignissimos quam incidunt facere rerum dicta amet labore voluptate beatae eveniet laborum quidem nulla.Lorem ipsum dolor, sit amet consectetur adipisicing elit. Maxime saepe, enim quia dolorum a nam pariatur, dignissimos quam incidunt facere rerum dicta amet labore voluptate beatae eveniet laborum quidem nulla.
+        </p>
+      </div>
+    </div>
+  </section>
+</main>
+
+
+
+
+
+
+
+<script>
+  (function () {
+    const btn = document.querySelector('.menu-toggle');
+    const nav = document.getElementById('site-menu');
+
+    if (!btn || !nav) return;
+
+    function setOpen(open) {
+      btn.setAttribute('aria-expanded', String(open));
+      nav.classList.toggle('open', open);
+    }
+
+    btn.addEventListener('click', () => {
+      const isOpen = btn.getAttribute('aria-expanded') === 'true';
+      setOpen(!isOpen);
+    });
+
+    // Cerrar al pulsar Esc
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') setOpen(false);
+    });
+
+    // Cerrar al tocar un enlace
+    nav.addEventListener('click', (e) => {
+      if (e.target.closest('a')) setOpen(false);
+    });
+  })();
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pablo Assante</title>
+  <link rel="stylesheet" href="styles.css">
+  
+</head>
+<body>
+
+ <header>
+  <div class="name"><a href="/index.html">Pablo Assante</a></div>
+
+  <!-- Botón hamburguesa (solo visible en móvil) -->
+  <button class="menu-toggle" aria-expanded="false" aria-controls="site-menu" aria-label="Abrir menú">
+    <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+  </button>
+
+  <nav id="site-menu">
+    <ul>
+      <li><a href="/sobremi.html">Sobre mi</a></li>
+      <li><a href="/galeria.html">Galería</a></li>
+      <li><a href="/calendario.html">Calendario</a></li>
+      <li><a href="/contacto.html">Contacto</a></li>
+    </ul>
+  </nav>
+</header>
+
+
+
+<main>
+  <section class="contacto-content" id="sobremi-content">
+      <!-- Right green panel -->
+      <div class="contacto-panel">
+         <figure class="home-figure">
+        <img src="fotos/gif_home.gif" alt="foto compositor pablo assante">
+      </figure>
+        </div>
+
+      
+
+      </div>
+  </section>
+</main>
+
+
+
+
+
+
+
+
+<script>
+  (function () {
+    const btn = document.querySelector('.menu-toggle');
+    const nav = document.getElementById('site-menu');
+
+    if (!btn || !nav) return;
+
+    function setOpen(open) {
+      btn.setAttribute('aria-expanded', String(open));
+      nav.classList.toggle('open', open);
+    }
+
+    btn.addEventListener('click', () => {
+      const isOpen = btn.getAttribute('aria-expanded') === 'true';
+      setOpen(!isOpen);
+    });
+
+    // Cerrar al pulsar Esc
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') setOpen(false);
+    });
+
+    // Cerrar al tocar un enlace
+    nav.addEventListener('click', (e) => {
+      if (e.target.closest('a')) setOpen(false);
+    });
+  })();
+</script>
+
+
+</body>
+</html>

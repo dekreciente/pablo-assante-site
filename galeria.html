@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pablo Assante</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://use.typekit.net/psw6vhf.css">
+</head>
+<body>
+
+ <header>
+  <div class="name"><a href="/index.html">Pablo Assante</a></div>
+
+  <!-- Botón hamburguesa (solo visible en móvil) -->
+  <button class="menu-toggle" aria-expanded="false" aria-controls="site-menu" aria-label="Abrir menú">
+    <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+  </button>
+
+  <nav id="site-menu">
+    <ul>
+      <li><a href="/sobremi.html">Sobre mi</a></li>
+      <li><a href="/galeria.html">Galería</a></li>
+      <li><a href="/calendario.html">Calendario</a></li>
+      <li><a href="/contacto.html">Contacto</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main class="gallery-content">
+
+  <section class="gallery-grid">
+    <!-- IMAGE -->
+    <figure class="gallery-item">
+      <div class="media-frame">
+        <img
+          src="fotos/Requiem_Mozart_Liceu_01.jpg"
+          alt="Descripción de la imagen"
+          loading="lazy"
+          width="1200" height="1500"
+        />
+      </div>
+    </figure>
+
+    <!-- VIDEO (silent preview) -->
+<figure class="gallery-item">
+  <div class="media-frame">
+    <iframe
+      class="video-thumb yt-contain"
+      src="https://www.youtube.com/embed/hl1UjcVQMj8?autoplay=0&mute=0&loop=1&playlist=hl1UjcVQMj8&controls=1&modestbranding=1&rel=0"
+      frameborder="0"
+      allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+      allowfullscreen
+    ></iframe>
+  </div>
+</figure>
+
+
+
+
+
+    <!-- IMAGE -->
+    <figure class="gallery-item">
+      <div class="media-frame">
+        <img
+          src="fotos/unnamed.jpg"
+          alt="Descripción de la imagen"
+          loading="lazy"
+          width="1600" height="1600"
+        />
+      </div>
+    </figure>
+
+
+    <!-- IMAGE -->
+    <figure class="gallery-item">
+      <div class="media-frame">
+        <img
+          src="fotos/unnamed.jpg"
+          alt="Descripción de la imagen"
+          loading="lazy"
+          width="1600" height="1600"
+        />
+      </div>
+    </figure>
+
+
+    <!-- Add as many items as you like; set --ratio to control crop -->
+
+    
+  </section>
+</main>
+
+
+
+
+
+
+
+
+<script>
+  // --- Autoplay thumbnails when visible ---
+  const videoThumbs = document.querySelectorAll('.video-thumb');
+  if (videoThumbs.length) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        const v = e.target;
+        if (e.isIntersecting) v.play().catch(() => {});
+        else v.pause();
+      });
+    }, { threshold: 0.25 });
+    videoThumbs.forEach(v => io.observe(v));
+  }
+
+  // --- Simple Lightbox for images & videos ---
+  const lb = document.querySelector('.lb-backdrop');
+  const lbMedia = document.querySelector('.lb-media');
+  const lbCaption = document.querySelector('.lb-caption');
+  const lbClose = document.querySelector('.lb-close');
+
+  function openLB(node, caption){
+    lb.hidden = false;
+    lbMedia.innerHTML = ''; // reset
+
+    const isVideo = node.tagName.toLowerCase() === 'video';
+    const clone = isVideo ? document.createElement('video') : new Image();
+
+    if (isVideo) {
+      clone.controls = true;
+      clone.playsInline = true;
+      clone.innerHTML = node.innerHTML; // copy <source> children
+      // If single source:
+      const src = node.querySelector('source')?.getAttribute('src') || node.getAttribute('src');
+      if (src) clone.src = src;
+      clone.poster = node.getAttribute('poster') || '';
+    } else {
+      clone.src = node.currentSrc || node.src;
+      clone.alt = node.alt || '';
+    }
+
+    lbMedia.appendChild(clone);
+    lbCaption.textContent = caption || '';
+    if (isVideo) clone.play().catch(() => {});
+  }
+
+  document.addEventListener('click', (e) => {
+    const media = e.target.closest('.media-frame img, .media-frame video');
+    if (media) {
+      const cap = media.closest('figure')?.querySelector('figcaption')?.textContent?.trim();
+      openLB(media, cap);
+    }
+    if (e.target === lb || e.target === lbClose) {
+      lb.hidden = true;
+      lbMedia.innerHTML = '';
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !lb.hidden) {
+      lb.hidden = true;
+      lbMedia.innerHTML = '';
+    }
+  });
+</script>
+
+
+<script>
+  (function () {
+    const btn = document.querySelector('.menu-toggle');
+    const nav = document.getElementById('site-menu');
+
+    if (!btn || !nav) return;
+
+    function setOpen(open) {
+      btn.setAttribute('aria-expanded', String(open));
+      nav.classList.toggle('open', open);
+    }
+
+    btn.addEventListener('click', () => {
+      const isOpen = btn.getAttribute('aria-expanded') === 'true';
+      setOpen(!isOpen);
+    });
+
+    // Cerrar al pulsar Esc
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') setOpen(false);
+    });
+
+    // Cerrar al tocar un enlace
+    nav.addEventListener('click', (e) => {
+      if (e.target.closest('a')) setOpen(false);
+    });
+  })();
+</script>
+
+
+  <script src="/js/gallery-loader.js" defer></script>
+</body>
+</html>

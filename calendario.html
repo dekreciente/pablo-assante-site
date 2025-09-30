@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendario</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://use.typekit.net/psw6vhf.css">
+</head>
+<body>
+
+ <header>
+  <div class="name"><a href="/index.html">Pablo Assante</a></div>
+
+  <!-- Botón hamburguesa (solo visible en móvil) -->
+  <button class="menu-toggle" aria-expanded="false" aria-controls="site-menu" aria-label="Abrir menú">
+    <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+  </button>
+
+  <nav id="site-menu">
+    <ul>
+      <li><a href="/sobremi.html">Sobre mi</a></li>
+      <li><a href="/galeria.html">Galería</a></li>
+      <li><a href="/calendario.html">Calendario</a></li>
+      <li><a href="/contacto.html">Contacto</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main class="agenda-content">
+  <div class="agenda-wrap" role="region" aria-labelledby="agenda" tabindex="0">
+    <table class="agenda-table" id="agenda">
+      <thead>
+        <tr>
+          <th data-type="text" aria-sort="none">EVENTO</th>
+          <th data-type="text" aria-sort="none">CATEGORIA</th>
+          <th data-type="date" aria-sort="none" class="is-date">FECHA</th>
+          <th data-type="text" aria-sort="none">LUGAR</th>
+          <th class="thin"></th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <!-- Usa data-sort para ordenar (ISO o string normalizado) -->
+        <tr data-sort-date="2025-11-03">
+          <td class="ev-title">Concierto en el Liceu</td>
+          <td class="ev-tags">Concierto</td>
+          <td class="ev-date">11/09/2025</td>
+          <td class="ev-loc">Barcelona</td>
+          <td class="ev-link"><a href="https://..." aria-label="Open event">↗</a></td>
+        </tr>
+
+        <tr data-sort-date="2025-09-11">
+          <td class="ev-title">Data Rich, Dirt Poor</td>
+          <td class="ev-tags">Charla</td>
+          <td class="ev-date">11/09/2025</td>
+          <td class="ev-loc">Boulder Museum of Contemporary Art, United States</td>
+          <td class="ev-link"><a href="https://..." aria-label="Open event">↗</a></td>
+        </tr>
+
+        <tr data-sort-date="2025-06-13">
+          <td class="ev-title">Planetary Experiments: Environments by Design</td>
+          <td class="ev-tags">Concierto</td>
+          <td class="ev-date">11/09/2025</td>
+          <td class="ev-loc">Annual Conference of the German Society…, Germany</td>
+          <td class="ev-link"><a href="https://..." aria-label="Open event">↗</a></td>
+        </tr>
+
+        <tr data-sort-date="2024-11-15">
+          <td class="ev-title">Talk for “Fragments of a Breathing City”</td>
+          <td class="ev-tags">Workshop</td>
+          <td class="ev-date">11/09/2025</td>
+          <td class="ev-loc">Graz, Austria</td>
+          <td class="ev-link"><a href="https://..." aria-label="Open event">↗</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+  (function () {
+    const btn = document.querySelector('.menu-toggle');
+    const nav = document.getElementById('site-menu');
+
+    if (!btn || !nav) return;
+
+    function setOpen(open) {
+      btn.setAttribute('aria-expanded', String(open));
+      nav.classList.toggle('open', open);
+    }
+
+    btn.addEventListener('click', () => {
+      const isOpen = btn.getAttribute('aria-expanded') === 'true';
+      setOpen(!isOpen);
+    });
+
+    // Cerrar al pulsar Esc
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') setOpen(false);
+    });
+
+    // Cerrar al tocar un enlace
+    nav.addEventListener('click', (e) => {
+      if (e.target.closest('a')) setOpen(false);
+    });
+  })();
+</script>
+
+
+  <script src="/js/calendar-loader.js" defer></script>
+</body>
+</html>
