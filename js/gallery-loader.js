@@ -3,15 +3,7 @@
   const grid = document.getElementById('gallery-grid');
   if (!grid) return;
 
-  // Normaliza rutas: "public/uploads/..." -> "/uploads/..."
-  function resolveSrc(p) {
-    if (!p) return "";
-    let s = String(p).trim();
-    s = s.replace(/^\/?public\/uploads/i, "/uploads");
-    s = s.replace(/^public\//i, "/");
-    if (!/^https?:\/\//i.test(s) && !s.startsWith("/")) s = "/" + s;
-    return s;
-  }
+  const normalize = (p) => (p||'').replace(/^\/?public\/uploads/i,'/uploads').replace(/^public\//i,'/');
 
   try {
     const res = await fetch("/content/gallery.json", { cache: "no-store" });
@@ -29,49 +21,32 @@
       fig.appendChild(frame);
       return fig;
     };
-    const caption = (title) =>
-      title ? Object.assign(document.createElement("figcaption"), { textContent: title }) : null;
+    const ytId = (v) => {
+      const m = String(v).match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
+      return m ? m[1] : String(v);
+    };
 
     const frag = document.createDocumentFragment();
-
-    for (const item of items) {
-      // ✅ usa src / video tal como salen del JSON
-      if (item.src) {
+    for (const it of items) {
+      if ((it.type === "image" || it.src) && it.src) {
         const img = new Image();
-        img.loading = "lazy";
-        img.decoding = "async";
-        img.alt = item.alt || "";
-        img.src = resolveSrc(item.src);
-        img.addEventListener("error", () => {
-          console.error("Image failed:", img.src);
-          img.title = "Image not found: " + img.src;
-          img.style.outline = "2px solid #f00";
-        });
-        const fig = card(img);
-        const cap = caption(item.title);
-        if (cap) fig.appendChild(cap);
-        frag.appendChild(fig);
-
-      } else if (item.video) {
-        const v = String(item.video).trim();
-        const m = v.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
-        const id = m ? m[1] : v;
+        img.loading = "lazy"; img.decoding = "async";
+        img.alt = it.alt || "";
+        img.src = normalize(it.src);
+        frag.appendChild(card(img));
+      } else if ((it.type === "youtube" || it.video) && it.video) {
+        const id = ytId(it.video);
         const ifr = document.createElement("iframe");
         ifr.className = "yt-contain";
         ifr.src = `https://www.youtube.com/embed/${id}?autoplay=0&controls=1&modestbranding=1&rel=0`;
         ifr.allowFullscreen = true;
-        ifr.setAttribute("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share");
-        ifr.setAttribute("referrerpolicy", "no-referrer-when-downgrade");
-        const fig = card(ifr);
-        const cap = caption(item.title);
-        if (cap) fig.appendChild(cap);
-        frag.appendChild(fig);
+        ifr.setAttribute("allow","accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share");
+        frag.appendChild(card(ifr));
       }
     }
 
     grid.innerHTML = "";
     grid.appendChild(frag);
-
   } catch (e) {
     console.error("Error cargando galería:", e);
     grid.innerHTML = `<p class="error">❌ No se pudo cargar la galería: ${String(e)}</p>`;
