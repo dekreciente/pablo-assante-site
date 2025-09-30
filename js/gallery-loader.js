@@ -1,86 +1,85 @@
 // /js/gallery-loader.js
-(function () {
-  const GRID_ID = "gallery-grid";
-  const DATA_URL = "content/gallery.json";
-  const YT_RE = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/;
+(async function () {
+  const grid = document.getElementById('gallery-grid');
+  if (!grid) return;
 
-  function el(tag, attrs = {}, ...children) {
-    const n = document.createElement(tag);
-    for (const [k, v] of Object.entries(attrs)) {
-      if (v == null) continue;
-      if (k === "class") n.className = v;
-      else if (k in n) n[k] = v;
-      else n.setAttribute(k, v);
-    }
-    for (const c of children.flat()) if (c != null) n.append(c.nodeType ? c : document.createTextNode(c));
-    return n;
+  // Normaliza rutas: "public/uploads/..." -> "/uploads/..."
+  function resolveSrc(p) {
+    if (!p) return "";
+    let s = String(p).trim();
+    s = s.replace(/^\/?public\/uploads/i, "/uploads");
+    s = s.replace(/^public\//i, "/");
+    if (!/^https?:\/\//i.test(s) && !s.startsWith("/")) s = "/" + s;
+    return s;
   }
 
-  const youtubeId = (input) => {
-    if (!input) return null;
-    const m = String(input).match(YT_RE);
-    if (m) return m[1];
-    try {
-      const u = new URL(input, location.origin);
-      const v = u.searchParams.get("v");
-      if (v && /^[A-Za-z0-9_-]{11}$/.test(v)) return v;
-    } catch {}
-    return /^[A-Za-z0-9_-]{11}$/.test(input) ? input : null;
-  };
+  try {
+    // Carga el JSON
+    const res = await fetch("/content/gallery.json", { cache: "no-store" });
+    if (!res.ok) throw new Error("Cannot load gallery.json");
+    const data = await res.json();
+    const items = Array.isArray(data.items) ? data.items : [];
+    console.log("[gallery] items:", items.length);
 
-const renderImage = ({ src, alt = "", title = "", width, height }) =>
-  el("figure", { class: "gallery-item" },
-    el("div", { class: "media-frame" },   // ⬅️ contenedor con alto fijo por CSS
-      el("img", { src, alt, loading: "lazy", decoding: "async", width, height })
-    ),
-    title ? el("figcaption", {}, title) : null
-  );
+    // Helpers para crear elementos
+    const card = (...children) => {
+      const fig = document.createElement("figure");
+      fig.className = "gallery-item";
+      const frame = document.createElement("div");
+      frame.className = "media-frame";
+      children.forEach(c => c && frame.appendChild(c));
+      fig.appendChild(frame);
+      return fig;
+    };
+    const caption = (title) =>
+      title ? Object.assign(document.createElement("figcaption"), { textContent: title }) : null;
 
-const renderYouTube = ({ video, title = "" }) => {
-  const id = youtubeId(video);
-  if (!id) return el("div", { class: "gallery-item error" }, "Video de YouTube inválido");
+    const frag = document.createDocumentFragment();
 
-  // para que el iframe encaje dentro de 4:3 sin recortes, usa .yt-contain (letterbox)
-  const iframe = el("iframe", {
-    src: `https://www.youtube.com/embed/${id}`,
-    title: title || "YouTube video",
-    frameBorder: "0",
-    allow: "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share",
-    allowFullscreen: true,
-    loading: "lazy",
-    referrerPolicy: "no-referrer-when-downgrade",
-    className: "yt-contain" // ⬅️ ya definida en tu CSS
-  });
+    for (const item of items) {
+      // Caso: imagen
+      if (item.src) {
+        const img = new Image();
+        img.loading = "lazy";
+        img.decoding = "async";
+        img.alt = item.alt || "";
+        img.src = resolveSrc(item.src);
 
-  return el("figure", { class: "gallery-item" },
-    el("div", { class: "media-frame" }, iframe),
-    title ? el("figcaption", {}, title) : null
-  );
-};
+        img.addEventListener("error", () => {
+          console.error("Image failed:", img.src);
+          img.title = "Image not found: " + img.src;
+          img.style.outline = "2px solid #f00";
+        });
 
-  async function load() {
-    const grid = document.getElementById(GRID_ID);
-    if (!grid) return;
-    grid.innerHTML = "<p>📦 Cargando galería…</p>";
+        const fig = card(img);
+        const cap = caption(item.title);
+        if (cap) fig.appendChild(cap);
+        frag.appendChild(fig);
 
-    try {
-      const res = await fetch(DATA_URL, { cache: "no-store" });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      const items = Array.isArray(data?.items) ? data.items : [];
+      // Caso: YouTube
+      } else if (item.video) {
+        const v = String(item.video).trim();
+        const m = v.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
+        const id = m ? m[1] : v;
+        const ifr = document.createElement("iframe");
+        ifr.className = "yt-contain";
+        ifr.src = `https://www.youtube.com/embed/${id}?autoplay=0&controls=1&modestbranding=1&rel=0`;
+        ifr.allowFullscreen = true;
+        ifr.setAttribute("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share");
+        ifr.setAttribute("referrerpolicy", "no-referrer-when-downgrade");
 
-      grid.innerHTML = "";
-      if (!items.length) { grid.innerHTML = "<p>No hay imágenes todavía.</p>"; return; }
-
-      for (const item of items) {
-        if (item.src) grid.append(renderImage(item));
-        else if (item.video) grid.append(renderYouTube(item));
+        const fig = card(ifr);
+        const cap = caption(item.title);
+        if (cap) fig.appendChild(cap);
+        frag.appendChild(fig);
       }
-    } catch (e) {
-      console.error("Error cargando galería:", e);
-      grid.innerHTML = `<p class="error">❌ No se pudo cargar la galería: ${String(e)}</p>`;
     }
-  }
 
-  document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", load) : load();
+    grid.innerHTML = "";
+    grid.appendChild(frag);
+
+  } catch (e) {
+    console.error("Error cargando galería:", e);
+    grid.innerHTML = `<p class="error">❌ No se pudo cargar la galería: ${String(e)}</p>`;
+  }
 })();
