@@ -61,13 +61,7 @@
   </section>
 </main>
 
-<!-- Lightbox -->
-<div class="lb-backdrop" id="lb" hidden aria-modal="true" role="dialog">
-  <div class="lb-panel">
-    <button class="lb-close" id="lb-close" aria-label="Cerrar">×</button>
-    <div class="lb-media" id="lb-media"></div>
-  </div>
-</div>
+
 
 <script>
   // --- Responsive menú ---
@@ -88,54 +82,7 @@
     nav.addEventListener('click', (e) => { if (e.target.closest('a')) setOpen(false); });
   })();
 
-  // --- Lightbox for images & YouTube iframes (delegated) ---
-  (function () {
-    const grid = document.getElementById('gallery-grid');
-    const lb = document.getElementById('lb');
-    const lbMedia = document.getElementById('lb-media');
-    const lbClose = document.getElementById('lb-close');
-
-    function openLB(node){
-      lb.hidden = false;
-      lbMedia.innerHTML = '';
-
-      if (node.tagName.toLowerCase() === 'img') {
-        const img = new Image();
-        img.src = node.currentSrc || node.src;
-        img.alt = node.alt || '';
-        lbMedia.appendChild(img);
-      } else if (node.tagName.toLowerCase() === 'iframe') {
-        // copy YouTube embed, turn on autoplay
-        const url = new URL(node.src);
-        url.searchParams.set('autoplay', '1');
-        const ifr = document.createElement('iframe');
-        ifr.src = url.toString();
-        ifr.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
-        ifr.allowFullscreen = true;
-        ifr.setAttribute('title', node.getAttribute('title') || 'Video');
-        ifr.style.width = 'min(1200px, 92vw)';
-        ifr.style.height = 'min(70vh, 56.25vw)'; // keep 16:9-ish
-        lbMedia.appendChild(ifr);
-      }
-    }
-    function closeLB(){
-      lb.hidden = true;
-      lbMedia.innerHTML = '';
-    }
-
-    // open on click inside the grid
-    document.addEventListener('click', (e) => {
-      const media = e.target.closest('#gallery-grid .media-frame img, #gallery-grid .media-frame iframe');
-      if (media) {
-        e.preventDefault();
-        openLB(media);
-      }
-      if (!lb.hidden && (e.target === lb || e.target === lbClose)) closeLB();
-    });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && !lb.hidden) closeLB();
-    });
-  })();
+  
 </script>
 
 <!-- Loader for gallery items from CMS -->
