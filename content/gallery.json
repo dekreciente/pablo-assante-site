@@ -1,7 +1,20 @@
 {
   "items": [
-    { "type": "image", "src": "/public/uploads/foto_sobremi.jpg" },
-    { "type": "image", "src": "/public/uploads/requiem_mozart_liceu_01.jpg" },
-    { "type": "youtube", "video": "https://www.youtube.com/watch?v=h1UjcQVMj8" }
+    {
+      "type": "image",
+      "src": "/public/uploads/foto_sobremi.jpg"
+    },
+    {
+      "type": "image",
+      "src": "/public/uploads/requiem_mozart_liceu_01.jpg"
+    },
+    {
+      "type": "youtube",
+      "video": "https://www.youtube.com/watch?v=h1UjcQVMj8"
+    },
+    {
+      "type": "image",
+      "src": "/public/uploads/unnamed.jpg"
+    }
   ]
 }
