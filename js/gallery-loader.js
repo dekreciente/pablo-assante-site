@@ -14,14 +14,12 @@
   }
 
   try {
-    // Carga el JSON
     const res = await fetch("/content/gallery.json", { cache: "no-store" });
     if (!res.ok) throw new Error("Cannot load gallery.json");
     const data = await res.json();
     const items = Array.isArray(data.items) ? data.items : [];
     console.log("[gallery] items:", items.length);
 
-    // Helpers para crear elementos
     const card = (...children) => {
       const fig = document.createElement("figure");
       fig.className = "gallery-item";
@@ -37,26 +35,22 @@
     const frag = document.createDocumentFragment();
 
     for (const item of items) {
-      // Caso: imagen
       if (item.src) {
         const img = new Image();
         img.loading = "lazy";
         img.decoding = "async";
         img.alt = item.alt || "";
         img.src = resolveSrc(item.src);
-
         img.addEventListener("error", () => {
           console.error("Image failed:", img.src);
           img.title = "Image not found: " + img.src;
           img.style.outline = "2px solid #f00";
         });
-
         const fig = card(img);
         const cap = caption(item.title);
         if (cap) fig.appendChild(cap);
         frag.appendChild(fig);
 
-      // Caso: YouTube
       } else if (item.video) {
         const v = String(item.video).trim();
         const m = v.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
@@ -67,7 +61,6 @@
         ifr.allowFullscreen = true;
         ifr.setAttribute("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share");
         ifr.setAttribute("referrerpolicy", "no-referrer-when-downgrade");
-
         const fig = card(ifr);
         const cap = caption(item.title);
         if (cap) fig.appendChild(cap);
