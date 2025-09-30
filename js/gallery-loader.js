@@ -35,6 +35,7 @@
     const frag = document.createDocumentFragment();
 
     for (const item of items) {
+      // ✅ usa src / video tal como salen del JSON
       if (item.src) {
         const img = new Image();
         img.loading = "lazy";
