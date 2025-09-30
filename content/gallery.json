@@ -1,10 +1,6 @@
 {
   "items": [
     {
-<<<<<<< HEAD
-      "type": "image",
-      "src": "/uploads/requiem_mozart_liceu_01.jpg"
-=======
       "src": "/uploads/requiem_mozart_liceu_01.jpg",
       "alt": "Requiem en el Liceu",
       "title": "Requiem Liceu"
@@ -17,7 +13,6 @@
       "src": "/uploads/foto_sobremi.jpg",
       "alt": "Retrato",
       "title": "Sobre mí"
->>>>>>> 49e0286 (gallery update)
     }
   ]
 }
