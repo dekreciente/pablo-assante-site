@@ -1,0 +1,47 @@
+backend:
+  name: git-gateway
+
+media_folder: "public/uploads"   # where uploads get committed
+public_folder: "/uploads"        # how they’re referenced on the site
+
+collections:
+  - name: "gallery"
+    label: "Galería"
+    files:
+      - name: "gallery-data"
+        label: "Elementos"
+        file: "content/gallery.json"
+        fields:
+          - label: "Items"
+            name: "items"
+            widget: "list"
+            types:
+              - label: "Imagen"
+                name: "image"
+                widget: "object"
+                fields:
+                  - { label: "Archivo (imagen)", name: "src", widget: "image" }
+                  - { label: "Alt (accesibilidad)", name: "alt", widget: "string", required: false }
+              - label: "YouTube"
+                name: "youtube"
+                widget: "object"
+                fields:
+                  - { label: "URL o ID de YouTube", name: "video", widget: "string" }
+                  - { label: "Título (opcional)", name: "title", widget: "string", required: false }
+
+  - name: "events"
+    label: "Calendario"
+    files:
+      - name: "events-data"
+        label: "Eventos"
+        file: "content/events.json"
+        fields:
+          - label: "Eventos"
+            name: "events"
+            widget: "list"
+            fields:
+              - { label: "Título", name: "title", widget: "string" }
+              - { label: "Etiquetas", name: "tags", widget: "string", required: false }
+              - { label: "Fecha inicio", name: "start", widget: "datetime" }
+              - { label: "Lugar", name: "location", widget: "string", required: false }
+              - { label: "Enlace", name: "link", widget: "string", required: false }
