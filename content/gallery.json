@@ -11,6 +11,10 @@
     {
       "type": "youtube",
       "video": "https://www.youtube.com/watch?v=hl1UjcVQMj8"
+    },
+    {
+      "type": "image",
+      "src": "/uploads/foto_sobremi.jpg"
     }
   ]
 }
